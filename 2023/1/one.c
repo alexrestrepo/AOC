@@ -2,18 +2,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <ctype.h>
-
-#define STB_DS_IMPLEMENTATION
-#include "../common/stb_ds_x.h"
-
-typedef struct {
-	uint8_t first;
-	uint8_t last;
-	
-} CalibrationValue;
+#include <stdlib.h>
 
 int main(int argc, char *argv[]) {
-	if (argc < 1) {
+	if (argc < 2) {
 		printf("missing input file.");
 		return EXIT_FAILURE;
 	}
