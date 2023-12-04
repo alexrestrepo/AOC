@@ -20,6 +20,7 @@ int main(int argc, char *argv[]) {
 	typedef enum {
 		ValTypeNum,
 		ValTypeSymbol,
+		ValTypeGear,
 		ValTypePeriod
 	} ValType;
 	
@@ -79,7 +80,7 @@ int main(int argc, char *argv[]) {
 			current = NULL;
 			currentIndex = -1;
 			
-			type = c == '.' ? ValTypePeriod : ValTypeSymbol;
+			type = c == '.' ? ValTypePeriod : c == '*' ? ValTypeGear : ValTypeSymbol;
 		}
 		
 		Cell cell = {
@@ -100,18 +101,27 @@ int main(int argc, char *argv[]) {
 	printf("size %d x %ld\n", stride, arrlen(cells) / stride);
 	
 	// mark all "parts"
+	int ratioSum = 0;
 	for (int i = 0; i < arrlen(cells); i++) {
 		// find x,y
 		int x = i % stride;
 		int y = i / stride;
 		
 		Cell c = cells[i];
-		if (c.type == ValTypeSymbol) {
+		typedef struct {
+			int key;
+			int value;
+		} Ratio;
+		
+		Ratio *ratios = NULL;
+		
+		if (c.type == ValTypeSymbol || c.type == ValTypeGear) {			
 			if (x - 1 >= 0 && y - 1 >= 0) {
 				int idx = (y - 1) * stride + (x - 1);
 				Cell cell = cells[idx];
 				if (cell.type == ValTypeNum) {
 					values[cell.index].isPart = true;
+					hmput(ratios, cell.index, values[cell.index].val);
 				}
 			}
 			
@@ -120,6 +130,7 @@ int main(int argc, char *argv[]) {
 				Cell cell = cells[idx];
 				if (cell.type == ValTypeNum) {
 					values[cell.index].isPart = true;
+					hmput(ratios, cell.index, values[cell.index].val);
 				}
 			}
 			
@@ -128,6 +139,7 @@ int main(int argc, char *argv[]) {
 				Cell cell = cells[idx];
 				if (cell.type == ValTypeNum) {
 					values[cell.index].isPart = true;
+					hmput(ratios, cell.index, values[cell.index].val);
 				}
 			}
 			
@@ -136,6 +148,7 @@ int main(int argc, char *argv[]) {
 				Cell cell = cells[idx];
 				if (cell.type == ValTypeNum) {
 					values[cell.index].isPart = true;
+					hmput(ratios, cell.index, values[cell.index].val);
 				}
 			}
 			
@@ -144,6 +157,7 @@ int main(int argc, char *argv[]) {
 				Cell cell = cells[idx];
 				if (cell.type == ValTypeNum) {
 					values[cell.index].isPart = true;
+					hmput(ratios, cell.index, values[cell.index].val);
 				}
 			}
 			
@@ -152,6 +166,7 @@ int main(int argc, char *argv[]) {
 				Cell cell = cells[idx];
 				if (cell.type == ValTypeNum) {
 					values[cell.index].isPart = true;
+					hmput(ratios, cell.index, values[cell.index].val);
 				}
 			}
 			
@@ -160,6 +175,7 @@ int main(int argc, char *argv[]) {
 				Cell cell = cells[idx];
 				if (cell.type == ValTypeNum) {
 					values[cell.index].isPart = true;
+					hmput(ratios, cell.index, values[cell.index].val);
 				}
 			}
 			
@@ -168,8 +184,17 @@ int main(int argc, char *argv[]) {
 				Cell cell = cells[idx];
 				if (cell.type == ValTypeNum) {
 					values[cell.index].isPart = true;
+					hmput(ratios, cell.index, values[cell.index].val);
 				}
 			}
+			
+			if (c.type == ValTypeGear) {
+				if (hmlen(ratios) == 2) {
+					ratioSum += ratios[0].value * ratios[1].value;
+				}
+			}
+			
+			hmfree(ratios);
 		}
 	}
 	
@@ -181,6 +206,10 @@ int main(int argc, char *argv[]) {
 		}
 	}
 	
-	printf("%d", sum);
+	arrfree(values);
+	arrfree(cells);
+	
+	printf("sum: %d\n", sum);
+	printf("ratios: %d", ratioSum);
 	return 0;
 }
